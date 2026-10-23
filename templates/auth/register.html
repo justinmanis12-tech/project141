@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block title %}Öğretmen kaydı · Ödev Panosu{% endblock %}
+{% block content %}
+<h1>Öğretmen kaydı</h1>
+<p class="lead">Kaydından sonra yönetici hesabını inceler. Onaylanana kadar ödev yayınlayamazsın.</p>
+<form class="stack" method="post" action="{{ url_for('auth.register') }}">
+  {{ csrf_input() }}
+  <label>Ad<input name="first_name" value="{{ v.first_name }}" required maxlength="60" autocomplete="given-name"></label>
+  <label>Soyad<input name="last_name" value="{{ v.last_name }}" required maxlength="60" autocomplete="family-name"></label>
+  <label>E-posta<input type="email" name="email" value="{{ v.email }}" required maxlength="254" autocomplete="email"></label>
+  <label>Okul
+    <select name="school_id" id="school_id" required>
+      <option value="">Okulunu seç…</option>
+      {% for s in schools %}<option value="{{ s.id }}" {{ 'selected' if v.school_id == s.id }}>{{ s.name }}{% if s.city %} ({{ s.city }}){% endif %}</option>{% endfor %}
+      <option value="__new__" {{ 'selected' if v.school_id == '__new__' }}>Okulum listede yok — yeni okul başvurusu yap</option>
+    </select>
+  </label>
+  <fieldset style="border:1px solid var(--line);border-radius:8px;display:grid;gap:.8rem">
+    <legend>Yeni okul bilgileri (yalnızca listede yoksa doldur)</legend>
+    <label>Okulun tam adı<input name="new_school_name" value="{{ v.new_school_name }}" maxlength="150"></label>
+    <label>Şehir<input name="new_school_city" value="{{ v.new_school_city }}" maxlength="80"></label>
+    <small>Yeni okullar yönetici onayından sonra yayınlanır.</small>
+  </fieldset>
+  <label>Şifre <small>en az 8 karakter</small><input type="password" name="password" required minlength="8" maxlength="72" autocomplete="new-password"></label>
+  <label>Şifre (tekrar)<input type="password" name="password2" required minlength="8" maxlength="72" autocomplete="new-password"></label>
+  <button class="btn" type="submit">Kayıt ol</button>
+</form>
+<p>Zaten hesabın var mı? <a href="{{ url_for('auth.login') }}">Giriş yap</a></p>
+{% endblock %}

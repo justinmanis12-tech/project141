@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block title %}Öğretmen girişi · Ödev Panosu{% endblock %}
+{% block content %}
+<h1>Öğretmen girişi</h1>
+<p class="lead">Öğrenciler giriş yapmadan ödevlere bakabilir; bu sayfa yalnızca öğretmenler içindir.</p>
+<form class="stack" method="post" action="{{ url_for('auth.login') }}">
+  {{ csrf_input() }}
+  <label>E-posta<input type="email" name="email" autocomplete="username" required maxlength="254"></label>
+  <label>Şifre<input type="password" name="password" autocomplete="current-password" required maxlength="72"></label>
+  <div class="row"><button class="btn" type="submit">Giriş yap</button>
+    <a href="{{ url_for('auth.forgot') }}">Şifremi unuttum</a></div>
+</form>
+<p>Hesabın yok mu? <a href="{{ url_for('auth.register') }}">Öğretmen olarak kayıt ol</a></p>
+{% endblock %}

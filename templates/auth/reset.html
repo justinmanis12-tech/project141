@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block title %}Yeni şifre · Ödev Panosu{% endblock %}
+{% block content %}
+<h1>Yeni şifre belirle</h1>
+<p id="reset-missing" class="flash error" hidden>Sıfırlama bağlantısı geçersiz ya da süresi dolmuş. <a href="{{ url_for('auth.forgot') }}">Yeni bağlantı iste</a>.</p>
+<form id="reset-form" class="stack" method="post" action="{{ url_for('auth.reset') }}" hidden>
+  {{ csrf_input() }}
+  <input type="hidden" name="access_token" value="">
+  <label>Yeni şifre <small>en az 8 karakter</small><input type="password" name="password" required minlength="8" maxlength="72" autocomplete="new-password"></label>
+  <label>Yeni şifre (tekrar)<input type="password" name="password2" required minlength="8" maxlength="72" autocomplete="new-password"></label>
+  <button class="btn" type="submit">Şifreyi değiştir</button>
+</form>
+<noscript><p class="flash error">Bu sayfa JavaScript gerektirir.</p></noscript>
+{% endblock %}
+{% block scripts %}<script src="{{ url_for('static', filename='reset.js') }}"></script>{% endblock %}

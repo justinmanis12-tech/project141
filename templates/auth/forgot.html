@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+{% block title %}Şifremi unuttum · Ödev Panosu{% endblock %}
+{% block content %}
+<h1>Şifremi unuttum</h1>
+<p class="lead">E-posta adresini yaz; kayıtlıysa sıfırlama bağlantısı gönderelim.</p>
+<form class="stack" method="post" action="{{ url_for('auth.forgot') }}">
+  {{ csrf_input() }}
+  <label>E-posta<input type="email" name="email" required maxlength="254" autocomplete="email"></label>
+  <button class="btn" type="submit">Bağlantı gönder</button>
+</form>
+{% endblock %}
