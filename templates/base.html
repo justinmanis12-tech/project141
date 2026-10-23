@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{% block title %}Ödev Panosu{% endblock %}</title>
+<meta name="description" content="Okulunu seç, sınıfını seç, ödevini bul. Kayıt gerekmez.">
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+<a class="skip" href="#icerik">İçeriğe geç</a>
+<header class="top"><div class="wrap">
+  <a class="brand" href="{{ url_for('public.home') }}">
+    <svg width="28" height="28" viewBox="0 0 28 28" aria-hidden="true"><rect x="3" y="3" width="22" height="22" rx="4" fill="#ffd84d"/><path d="M8 9h12M8 14h12M8 19h7" stroke="#14213d" stroke-width="2.2" stroke-linecap="round"/></svg>
+    Ödev <span class="hl">Panosu</span></a>
+  <nav aria-label="Ana menü">
+    {% set u = me() %}
+    {% if u %}
+      {% if u.profile.role == 'admin' %}<a href="{{ url_for('admin.home') }}">Yönetim</a>
+      {% else %}<a href="{{ url_for('teacher.dashboard') }}">Öğretmen paneli</a>{% endif %}
+      <form method="post" action="{{ url_for('auth.logout') }}">{{ csrf_input() }}<button class="link" type="submit">Çıkış</button></form>
+    {% else %}
+      <a href="{{ url_for('auth.login') }}">Öğretmen girişi</a>
+    {% endif %}
+  </nav>
+</div></header>
+<main id="icerik" class="wrap">
+  {% with msgs = get_flashed_messages(with_categories=true) %}{% if msgs %}
+    <div role="status" aria-live="polite">{% for cat, m in msgs %}<div class="flash {{ cat }}">{{ m }}</div>{% endfor %}</div>
+  {% endif %}{% endwith %}
+  {% block content %}{% endblock %}
+</main>
+<script src="{{ url_for('static', filename='app.js') }}" defer></script>
+{% block scripts %}{% endblock %}
+</body>
+</html>

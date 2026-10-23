@@ -1,0 +1,7 @@
+{% extends "base.html" %}
+{% block title %}Hata {{ code }} · Ödev Panosu{% endblock %}
+{% block content %}
+<h1>{{ message }}</h1>
+<p class="lead">Hata kodu: {{ code }}</p>
+<a class="btn" href="{{ url_for('public.home') }}">Ana sayfaya dön</a>
+{% endblock %}
