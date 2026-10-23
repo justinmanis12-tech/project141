@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% block title %}{{ s.name }} · Yönetim{% endblock %}
+{% block content %}
+<h1>{{ s.name }}</h1>
+{% include "admin/_nav.html" %}
+<p><span class="badge {{ 'ok' if s.status == 'approved' else 'warn' if s.status == 'pending' else 'bad' }}">{{ {'approved':'Yayında','pending':'Bekliyor','rejected':'Reddedildi'}[s.status] }}</span></p>
+<div class="row">
+  <form class="row" method="post" action="{{ url_for('admin.school_status', sid=s.id) }}">{{ csrf_input() }}<input type="hidden" name="status" value="approved">
+    <span class="checks">{% for key, label, _ in stages %}<label><input type="checkbox" name="stages" value="{{ key }}"> {{ label }}</label>{% endfor %}</span>
+    <button class="btn sm" type="submit">{{ 'Yeniden onayla' if s.status == 'approved' else 'Onayla' }} ve seçili kademelerin sınıflarını ekle</button></form>
+  {% if s.status != 'rejected' %}<form method="post" action="{{ url_for('admin.school_status', sid=s.id) }}" data-confirm="Okul yayından kalkacak ve öğrenciler göremeyecek. Emin misin?">{{ csrf_input() }}<input type="hidden" name="status" value="rejected"><button class="btn danger sm" type="submit">Reddet / yayından kaldır</button></form>{% endif %}
+</div>
+<h2>Bilgiler</h2>
+<form class="stack" method="post" action="{{ url_for('admin.school_edit', sid=s.id) }}">{{ csrf_input() }}
+  <label>Ad<input name="name" value="{{ s.name }}" required minlength="3" maxlength="150"></label>
+  <label>Şehir<input name="city" value="{{ s.city }}" maxlength="80"></label>
+  <label>İlçe<input name="district" value="{{ s.district or '' }}" maxlength="80"></label>
+  <label>Adres<input name="address" value="{{ s.address or '' }}" maxlength="300"></label>
+  <button class="btn" type="submit">Kaydet</button></form>
+<h2>Sınıflar ve dersler</h2>
+{% for g in grades %}
+<div class="card"><div class="row" style="justify-content:space-between"><strong>{{ grade_label(g) }} <span class="badge">{{ STAGE_LABEL[g.school_stage] }}</span></strong>
+  <form method="post" action="{{ url_for('admin.grade_delete', sid=s.id, gid=g.id) }}" data-confirm="Sınıf silinsin mi? (Ödevi olan sınıf silinemez.)">{{ csrf_input() }}<button class="btn danger sm" type="submit">Sınıfı sil</button></form></div>
+  <div class="row" style="margin-top:.4rem">
+  {% for l in links.get(g.id, []) %}
+    <form class="row" method="post" action="{{ url_for('admin.subject_unlink', sid=s.id) }}" data-confirm="Ders bu sınıftan kaldırılsın mı?">{{ csrf_input() }}
+      <input type="hidden" name="grade_id" value="{{ g.id }}"><input type="hidden" name="subject_id" value="{{ l.subject_id }}">
+      <span class="badge">{{ l.subjects.name }}</span><button class="btn sec sm" type="submit" aria-label="{{ l.subjects.name }} dersini kaldır">×</button></form>
+  {% else %}<span class="meta">Henüz ders yok</span>{% endfor %}</div></div>
+{% else %}<div class="empty">Henüz sınıf yok.</div>{% endfor %}
+<h2>Sınıf ekle</h2>
+<form class="stack" method="post" action="{{ url_for('admin.grade_add', sid=s.id) }}">{{ csrf_input() }}
+  <label>Sınıf numarası (1–12)<input type="number" name="grade_number" min="1" max="12" required></label>
+  <label>Şube <small>A, B, ATP… (boş bırakılabilir)</small><input name="section" maxlength="20"></label>
+  <button class="btn" type="submit">Sınıf ekle</button></form>
+{% if grades %}<h2>Ders ekle</h2>
+<form class="stack" method="post" action="{{ url_for('admin.subject_add', sid=s.id) }}">{{ csrf_input() }}
+  <label>Ders adı<input name="name" required minlength="2" maxlength="80" placeholder="Matematik"></label>
+  <div class="checks">{% for g in grades %}<label><input type="checkbox" name="grade_ids" value="{{ g.id }}"> {{ grade_label(g) }}</label>{% endfor %}</div>
+  <button class="btn" type="submit">Seçili sınıflara ekle</button></form>{% endif %}
+{% endblock %}

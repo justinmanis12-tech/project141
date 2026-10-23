@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block title %}Öğretmenler · Yönetim{% endblock %}
+{% block content %}
+<h1>Öğretmenler</h1>
+{% include "admin/_nav.html" %}
+<div class="row" style="margin-bottom:1rem">
+  <a class="btn {{ '' if not st else 'sec' }} sm" href="{{ url_for('admin.teachers') }}">Tümü</a>
+  {% for s in statuses %}<a class="btn {{ '' if st == s else 'sec' }} sm" href="{{ url_for('admin.teachers', durum=s) }}">{{ {'approved':'Onaylı','pending':'Bekleyen','rejected':'Reddedilen','suspended':'Askıda'}[s] }}</a>{% endfor %}
+</div>
+{% if rows %}<div class="scroll"><table>
+<thead><tr><th>Ad</th><th>E-posta</th><th>Okul</th><th>Durum</th><th></th></tr></thead><tbody>
+{% for r in rows %}<tr>
+  <td>{{ r.first_name }} {{ r.last_name }}</td><td>{{ r.email }}</td>
+  <td>{% for m in mems.get(r.id, []) %}{{ m.schools.name if m.schools }}{% if m.schools and m.schools.status != 'approved' %} <span class="badge warn">okul bekliyor</span>{% endif %}<br>{% endfor %}</td>
+  <td><span class="badge {{ 'ok' if r.status == 'approved' else 'warn' if r.status == 'pending' else 'bad' }}">{{ {'approved':'Onaylı','pending':'Bekliyor','rejected':'Reddedildi','suspended':'Askıda'}[r.status] }}</span></td>
+  <td><a class="btn sec sm" href="{{ url_for('admin.teacher', uid=r.id) }}">Aç</a></td></tr>{% endfor %}
+</tbody></table></div>
+{% else %}<div class="empty">Bu filtrede öğretmen yok.</div>{% endif %}
+{% endblock %}

@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block title %}Ödevler · Yönetim{% endblock %}
+{% block content %}
+<h1>Ödevler</h1>
+{% include "admin/_nav.html" %}
+<div class="row" style="margin-bottom:1rem">
+  {% for k, label in [('', 'Tümü'), ('published', 'Yayında'), ('draft', 'Taslak'), ('hidden', 'Kaldırılan')] %}<a class="btn {{ '' if st == k else 'sec' }} sm" href="{{ url_for('admin.assignments', durum=k) if k else url_for('admin.assignments') }}">{{ label }}</a>{% endfor %}
+</div>
+{% for r in rows %}
+<div class="card"><strong>{{ r.title }}</strong>
+  <span class="badge {{ 'ok' if r.status == 'published' else 'bad' if r.status == 'hidden' else '' }}">{{ {'published':'Yayında','draft':'Taslak','hidden':'Kaldırıldı'}[r.status] }}</span>
+  <div class="meta"><span>{{ r.school }}</span><span>{{ r.grade_text }}</span><span>{{ r.subject_text }}</span><span>{{ r.teacher_name or '—' }}</span><span>{{ r.created_at|tr_date }}</span></div>
+  <div class="row" style="margin-top:.4rem">
+    {% if r.status == 'published' %}<a class="btn sec sm" href="{{ url_for('public.assignment', assignment_id=r.id) }}">Görüntüle</a>{% endif %}
+    {% if r.status != 'hidden' %}<form method="post" action="{{ url_for('admin.assignment_moderate', aid=r.id) }}" data-confirm="Ödev yayından kaldırılsın mı?">{{ csrf_input() }}<input type="hidden" name="action" value="hide"><button class="btn danger sm" type="submit">Yayından kaldır</button></form>
+    {% else %}<form method="post" action="{{ url_for('admin.assignment_moderate', aid=r.id) }}">{{ csrf_input() }}<input type="hidden" name="action" value="restore"><button class="btn sec sm" type="submit">Taslağa geri al</button></form>{% endif %}
+  </div></div>
+{% else %}<div class="empty">Bu filtrede ödev yok.</div>{% endfor %}
+{% endblock %}

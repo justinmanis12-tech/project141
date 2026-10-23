@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block title %}Okullar · Yönetim{% endblock %}
+{% block content %}
+<h1>Okullar</h1>
+{% include "admin/_nav.html" %}
+<h2 style="margin-top:0">Okul ekle</h2>
+<form class="stack" method="post" action="{{ url_for('admin.school_add') }}">{{ csrf_input() }}
+  <label>Okul adı<input name="name" required minlength="3" maxlength="150"></label>
+  <label>Şehir<input name="city" maxlength="80"></label>
+  <label>İlçe <small>isteğe bağlı</small><input name="district" maxlength="80"></label>
+  <div class="checks"><span>Sınıfları oluştur:</span>{% for key, label, _ in stages %}<label><input type="checkbox" name="stages" value="{{ key }}"> {{ label }}</label>{% endfor %}</div>
+  <button class="btn" type="submit">Okulu ekle</button>
+</form>
+<h2>Tüm okullar</h2>
+{% for s in rows %}
+<div class="card"><strong>{{ s.name }}</strong>
+  <span class="badge {{ 'ok' if s.status == 'approved' else 'warn' if s.status == 'pending' else 'bad' }}">{{ {'approved':'Yayında','pending':'Bekliyor','rejected':'Reddedildi'}[s.status] }}</span>
+  <div class="meta"><span>{{ [s.district, s.city]|select|join(', ') }}</span></div>
+  <a class="btn sec sm" href="{{ url_for('admin.school', sid=s.id) }}">Aç / düzenle</a></div>
+{% else %}<div class="empty">Henüz okul yok.</div>{% endfor %}
+{% endblock %}

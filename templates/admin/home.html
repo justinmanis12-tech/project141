@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block title %}Yönetim · Ödev Panosu{% endblock %}
+{% block content %}
+<h1>Yönetim paneli</h1>
+{% include "admin/_nav.html" %}
+<div class="stats">
+  <div class="stat"><b>{{ stats.teachers_pending }}</b>Onay bekleyen öğretmen</div>
+  <div class="stat"><b>{{ stats.schools_pending }}</b>Onay bekleyen okul</div>
+  <div class="stat"><b>{{ stats.teachers_approved }}</b>Onaylı öğretmen</div>
+  <div class="stat"><b>{{ stats.schools_approved }}</b>Yayındaki okul</div>
+  <div class="stat"><b>{{ stats.published }}</b>Yayındaki ödev</div>
+</div>
+<h2>Okul başvuruları</h2>
+{% for s in pending_s %}
+<div class="card"><strong>{{ s.name }}</strong> <span class="meta">{{ s.city }} · {{ s.created_at|tr_date }}</span>
+  <div class="row" style="margin-top:.5rem">
+  <form class="row" method="post" action="{{ url_for('admin.school_status', sid=s.id) }}">{{ csrf_input() }}
+    <input type="hidden" name="status" value="approved"><input type="hidden" name="back" value="{{ url_for('admin.home') }}">
+    <span class="checks">{% for key, label, _ in [('ilkokul','İlkokul',0),('ortaokul','Ortaokul',0),('lise','Lise',0)] %}<label><input type="checkbox" name="stages" value="{{ key }}" {{ 'checked' if key == 'lise' }}> {{ label }}</label>{% endfor %}</span>
+    <button class="btn sm" type="submit">Onayla</button></form>
+  <form method="post" action="{{ url_for('admin.school_status', sid=s.id) }}" data-confirm="Bu okul başvurusu reddedilsin mi?">{{ csrf_input() }}
+    <input type="hidden" name="status" value="rejected"><input type="hidden" name="back" value="{{ url_for('admin.home') }}"><button class="btn danger sm" type="submit">Reddet</button></form>
+  <a class="btn sec sm" href="{{ url_for('admin.school', sid=s.id) }}">Detay</a></div></div>
+{% else %}<div class="empty">Bekleyen okul başvurusu yok.</div>{% endfor %}
+<h2>Öğretmen başvuruları</h2>
+{% for t in pending_t %}
+<div class="card"><strong>{{ t.first_name }} {{ t.last_name }}</strong> <span class="meta">{{ t.email }} · {{ t.created_at|tr_date }}</span>
+  <div class="row" style="margin-top:.5rem"><a class="btn sm" href="{{ url_for('admin.teacher', uid=t.id) }}">İncele ve karar ver</a></div></div>
+{% else %}<div class="empty">Bekleyen öğretmen başvurusu yok.</div>{% endfor %}
+{% endblock %}

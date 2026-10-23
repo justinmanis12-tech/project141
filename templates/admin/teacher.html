@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block title %}{{ t.first_name }} {{ t.last_name }} · Yönetim{% endblock %}
+{% block content %}
+<h1>{{ t.first_name }} {{ t.last_name }}</h1>
+{% include "admin/_nav.html" %}
+<p class="meta"><span>{{ t.email }}</span><span>Kayıt: {{ t.created_at|tr_date }}</span>
+  <span class="badge {{ 'ok' if t.status == 'approved' else 'warn' if t.status == 'pending' else 'bad' }}">{{ t.status }}</span></p>
+<h2>Okul başvurusu</h2>
+{% for m in mems %}<div class="card"><strong>{{ m.schools.name }}</strong> <span class="meta">{{ m.schools.city }}</span>
+  {% if m.schools.status != 'approved' %}<span class="badge warn">Okul henüz onaylanmadı</span> <a href="{{ url_for('admin.school', sid=m.schools.id) }}">Okulu incele</a>{% endif %}</div>
+{% else %}<div class="empty">Okul bağlantısı yok.</div>{% endfor %}
+<h2>Karar</h2>
+<form class="stack" method="post" action="{{ url_for('admin.teacher_status', uid=t.id) }}">{{ csrf_input() }}
+  <label>Durum<select name="status">{% for s in statuses %}<option value="{{ s }}" {{ 'selected' if s == t.status }}>{{ {'approved':'Onaylı','pending':'Bekliyor','rejected':'Reddedildi','suspended':'Askıya alındı'}[s] }}</option>{% endfor %}</select></label>
+  <div class="checks"><label><input type="checkbox" name="grant_all" value="1" checked> Onaylarken okulun tüm sınıflarına yetki ver</label></div>
+  <button class="btn" type="submit">Durumu kaydet</button>
+</form>
+<h2>Sınıf yetkileri</h2>
+{% if grades %}
+<form class="stack" method="post" action="{{ url_for('admin.teacher_grades', uid=t.id) }}">{{ csrf_input() }}
+  <div class="checks">{% for g in grades %}<label><input type="checkbox" name="grade_ids" value="{{ g.id }}" {{ 'checked' if g.id in allowed }}> {{ grade_label(g) }}</label>{% endfor %}</div>
+  <button class="btn" type="submit">Yetkileri kaydet</button></form>
+{% else %}<div class="empty">Okulda henüz sınıf tanımlı değil.</div>{% endif %}
+{% endblock %}
