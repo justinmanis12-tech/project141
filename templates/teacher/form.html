@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block title %}{{ 'Ödevi düzenle' if edit else 'Yeni ödev' }} · Ödev Panosu{% endblock %}
+{% block content %}
+<p class="crumbs"><a href="{{ url_for('teacher.dashboard') }}">Öğretmen paneli</a> / {{ 'Düzenle' if edit else 'Yeni ödev' }}</p>
+<h1>{{ 'Ödevi düzenle' if edit else 'Yeni ödev' }}</h1>
+{% if not options %}<div class="empty">Ödev oluşturmak için sana atanmış sınıf ve ders bulunmuyor. Yöneticiden sınıf yetkisi isteyin.</div>
+{% else %}
+<form class="stack" method="post" action="{{ url_for('teacher.edit', aid=edit.id) if edit else url_for('teacher.create') }}">
+  {{ csrf_input() }}
+  <label>Sınıf ve ders
+    <select name="combo" required>
+      <option value="">Seç…</option>
+      {% for o in options %}<option value="{{ o.value }}" {{ 'selected' if v.combo == o.value }}>{{ o.label }}</option>{% endfor %}
+    </select></label>
+  <label>Başlık<input name="title" value="{{ v.title }}" required minlength="3" maxlength="200"></label>
+  <label>Açıklama ve talimatlar<textarea name="description" maxlength="20000" rows="8">{{ v.description }}</textarea></label>
+  <label>Son teslim tarihi <small>isteğe bağlı</small><input type="date" name="due_date" value="{{ v.due_date }}"></label>
+  <label>Materyal bağlantıları <small>her satıra bir tane: «Başlık | https://…» (en fazla 10)</small>
+    <textarea name="materials" rows="3" maxlength="4000">{{ v.materials }}</textarea></label>
+  <label>Durum
+    <select name="status">
+      <option value="draft" {{ 'selected' if v.status != 'published' }}>Taslak (öğrenciler görmez)</option>
+      <option value="published" {{ 'selected' if v.status == 'published' }}>Yayında</option>
+    </select></label>
+  <div class="row"><button class="btn" type="submit">Kaydet</button>
+    <a class="btn sec" href="{{ url_for('teacher.dashboard') }}">Vazgeç</a></div>
+</form>
+{% endif %}
+{% endblock %}

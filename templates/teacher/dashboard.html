@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% block title %}Öğretmen paneli · Ödev Panosu{% endblock %}
+{% block content %}
+{% set p = me().profile %}
+<h1>Merhaba, {{ p.first_name }}</h1>
+<p class="meta">{{ me().email }}
+  <span class="badge {{ 'ok' if p.status == 'approved' else 'warn' if p.status == 'pending' else 'bad' }}">
+    {{ {'approved':'Onaylı','pending':'Onay bekliyor','rejected':'Reddedildi','suspended':'Askıya alındı'}[p.status] }}</span></p>
+
+{% if p.status == 'pending' %}<div class="flash error" style="background:var(--warn-bg);color:var(--warn);border-color:#f0d9a0">Hesabın yönetici onayını bekliyor. Onaylanana kadar ödev yayınlayamazsın.</div>
+{% elif p.status == 'rejected' %}<div class="flash error">Başvurun reddedildi. Okul yönetimiyle iletişime geç.</div>
+{% elif p.status == 'suspended' %}<div class="flash error">Erişimin geçici olarak durduruldu.</div>{% endif %}
+
+<h2>Okulum</h2>
+{% for m in mems %}
+  <div class="card"><strong>{{ m.schools.name if m.schools else '—' }}</strong>
+    <div class="meta"><span>{{ m.schools.city if m.schools }}</span>
+    {% if m.schools and m.schools.status == 'pending' %}<span class="badge warn">Okul başvurusu inceleniyor</span>{% endif %}</div></div>
+{% else %}<div class="empty">Hesabına bağlı bir okul yok. Yönetici ile iletişime geç.</div>{% endfor %}
+
+{% if p.status == 'approved' %}
+<h2>Yetkili olduğum sınıflar</h2>
+{% if grades %}<div class="row">{% for g in grades %}<span class="badge">{{ grade_label(g) }}</span>{% endfor %}</div>
+{% else %}<div class="empty">Henüz sana sınıf atanmadı. Yönetici sınıf yetkilerini tanımladığında burada görünür.</div>{% endif %}
+
+<div class="row" style="margin-top:1.5rem;justify-content:space-between"><h2 style="margin:0">Ödevlerim</h2>
+  {% if options %}<a class="btn" href="{{ url_for('teacher.create') }}">Yeni ödev</a>{% endif %}</div>
+{% endif %}
+{% for a in items %}
+<article class="card" style="margin-top:.75rem">
+  <h3>{{ a.title }}
+    <span class="badge {{ 'ok' if a.status == 'published' else 'bad' if a.status == 'hidden' else '' }}">
+      {{ {'published':'Yayında','draft':'Taslak','hidden':'Yönetici kaldırdı'}[a.status] }}</span></h3>
+  <div class="meta"><span>{{ a.grade_text }}</span><span>{{ a.subject_text }}</span>
+    {% if a.due_date %}<span>Son teslim: {{ a.due_date|tr_date }}</span>{% endif %}<span>Güncelleme: {{ a.updated_at|tr_date }}</span></div>
+  {% if a.status != 'hidden' and p.status == 'approved' %}
+  <div class="row" style="margin-top:.5rem">
+    <a class="btn sec sm" href="{{ url_for('teacher.edit', aid=a.id) }}">Düzenle</a>
+    <form method="post" action="{{ url_for('teacher.set_status', aid=a.id) }}">{{ csrf_input() }}
+      <input type="hidden" name="status" value="{{ 'draft' if a.status == 'published' else 'published' }}">
+      <button class="btn sec sm" type="submit">{{ 'Yayından kaldır' if a.status == 'published' else 'Yayınla' }}</button></form>
+    {% if a.status == 'published' %}<a class="btn sec sm" href="{{ url_for('public.assignment', assignment_id=a.id) }}">Görüntüle</a>{% endif %}
+    <form method="post" action="{{ url_for('teacher.delete', aid=a.id) }}" data-confirm="Bu ödev kalıcı olarak silinecek. Emin misin?">{{ csrf_input() }}
+      <button class="btn danger sm" type="submit">Sil</button></form>
+  </div>{% endif %}
+</article>
+{% else %}{% if p.status == 'approved' %}<div class="empty">Henüz ödev oluşturmadın. «Yeni ödev» ile başla.</div>{% endif %}{% endfor %}
+{% endblock %}
