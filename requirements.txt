@@ -1,0 +1,4 @@
+flask>=3.0
+gunicorn>=22.0
+supabase>=2.0
+httpx>=0.27
