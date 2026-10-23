@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block title %}{{ school.name }} · Ödev Panosu{% endblock %}
+{% block content %}
+<p class="crumbs"><a href="{{ url_for('public.home') }}">Okullar</a> / {{ school.name }}</p>
+<h1>{{ school.name }}</h1>
+{% set loc = [school.district, school.city]|select|join(', ') %}
+<p class="lead">{% if loc %}{{ loc }} · {% endif %}Sınıfını seç.</p>
+{% for key, label, grades in by_stage %}
+  <h2>{{ label }}</h2>
+  <ul class="grid tight">
+    {% for g in grades %}
+    <li><a class="tile num" href="{{ url_for('public.grade', school_id=school.id, grade_id=g.id) }}">{{ g.grade_number }}{% if g.section %}-{{ g.section }}{% endif %}</a></li>
+    {% endfor %}
+  </ul>
+{% else %}
+  <div class="empty">Bu okul için henüz sınıf tanımlanmamış.</div>
+{% endfor %}
+{% endblock %}

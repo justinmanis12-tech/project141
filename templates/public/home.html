@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="hero">
+  <h1>Ödevini bul. Kayıt gerekmez.</h1>
+  <p class="lead">Okulunu seç, sınıfını ve dersini aç; öğretmeninin yayınladığı ödevler orada.</p>
+  <form class="search" method="get" action="{{ url_for('public.home') }}" role="search">
+    <label for="q" class="sr" style="position:absolute;left:-999px">Okul ara</label>
+    <input id="q" name="q" value="{{ q }}" placeholder="Okul adı yaz…" autocomplete="off" maxlength="80">
+    <button class="btn" type="submit">Ara</button>
+  </form>
+</section>
+<h2 style="margin-top:.5rem">{% if q %}«{{ q }}» için sonuçlar{% else %}Okullar{% endif %}</h2>
+{% if schools %}
+<ul class="grid">
+  {% for s in schools %}
+  <li><a class="tile" href="{{ url_for('public.school', school_id=s.id) }}">
+    <strong>{{ s.name }}</strong>
+    <small>{{ [s.district, s.city]|select|join(', ') or 'Şehir belirtilmemiş' }}</small></a></li>
+  {% endfor %}
+</ul>
+{% else %}
+<div class="empty">
+  {% if q %}Bu adla bir okul bulunamadı. Yazımı değiştirip tekrar dene.{% else %}Henüz kayıtlı okul yok.{% endif %}
+  <br>Okulun listede yok mu? Öğretmenin <a href="{{ url_for('auth.register') }}">kayıt olurken yeni okul başvurusu</a> yapabilir.
+</div>
+{% endif %}
+<p style="margin-top:2rem" class="lead">Öğretmen misin? <a href="{{ url_for('auth.login') }}">Giriş yap</a> ya da <a href="{{ url_for('auth.register') }}">kayıt ol</a>.</p>
+{% endblock %}

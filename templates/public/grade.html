@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block title %}{{ grade_label(grade) }} · {{ school.name }}{% endblock %}
+{% block content %}
+<p class="crumbs"><a href="{{ url_for('public.home') }}">Okullar</a> / <a href="{{ url_for('public.school', school_id=school.id) }}">{{ school.name }}</a> / {{ grade_label(grade) }}</p>
+<h1>{{ grade_label(grade) }} · {{ STAGE_LABEL[grade.school_stage] }}</h1>
+<p class="lead">Dersini seç.</p>
+{% if subjects %}
+<ul class="grid">
+  {% for s in subjects %}
+  <li><a class="tile" href="{{ url_for('public.subject', school_id=school.id, grade_id=grade.id, subject_id=s.id) }}"><strong>{{ s.name }}</strong></a></li>
+  {% endfor %}
+</ul>
+{% else %}<div class="empty">Bu sınıf için henüz ders eklenmemiş.</div>{% endif %}
+{% endblock %}

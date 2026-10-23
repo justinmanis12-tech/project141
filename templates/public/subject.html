@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block title %}{{ subject.name }} · {{ grade_label(grade) }} · {{ school.name }}{% endblock %}
+{% block content %}
+<p class="crumbs"><a href="{{ url_for('public.home') }}">Okullar</a> / <a href="{{ url_for('public.school', school_id=school.id) }}">{{ school.name }}</a> / <a href="{{ url_for('public.grade', school_id=school.id, grade_id=grade.id) }}">{{ grade_label(grade) }}</a> / {{ subject.name }}</p>
+<h1>{{ subject.name }}</h1>
+<p class="lead">{{ school.name }} · {{ grade_label(grade) }}</p>
+{% for a in items %}
+<article class="card">
+  <h3><a href="{{ url_for('public.assignment', assignment_id=a.id) }}">{{ a.title }}</a></h3>
+  <div class="meta">
+    <span>Yayın: {{ a.published_at|tr_date }}</span>
+    {% if a.teacher_name %}<span>Öğretmen: {{ a.teacher_name }}</span>{% endif %}
+    {% if a.due_date %}<span class="due">Son teslim: {{ a.due_date|tr_date }}</span>{% endif %}
+    {% if a.materials %}<span class="badge">{{ a.materials|length }} ek materyal</span>{% endif %}
+  </div>
+  {% if a.description %}<p style="margin:.4rem 0 0">{{ a.description|excerpt }}</p>{% endif %}
+</article>
+{% else %}
+<div class="empty">Bu ders için henüz yayınlanmış ödev yok.</div>
+{% endfor %}
+{% endblock %}
